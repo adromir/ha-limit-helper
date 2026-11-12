@@ -61,3 +61,4 @@ ATTR_THRESHOLDS = "thresholds"
 ATTR_LABELS = "labels"
 ATTR_HYSTERESIS = "hysteresis"
 ATTR_PRESET = "preset"
+

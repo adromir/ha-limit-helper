@@ -186,3 +186,4 @@ class LimitSensor(SensorEntity):
             self._attr_native_value = self._labels[zone_idx]
         else:
             self._attr_native_value = f"zone_{zone_idx + 1}"
+
