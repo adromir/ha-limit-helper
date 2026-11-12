@@ -1,0 +1,71 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Create Limit Helper",
+        "description": "Categorize a numeric sensor into multi-tier limit zones (e.g. low, normal, high, critical) with optional hysteresis, without writing Jinja2 template sensors.",
+        "data": {
+          "name": "Name",
+          "source_entity": "Numeric Target Entity",
+          "preset": "Preset Configuration",
+          "thresholds": "Threshold Values (comma-separated)",
+          "labels": "Zone Labels (comma-separated)",
+          "hysteresis": "Hysteresis / Noise Buffer",
+          "icon": "Icon (optional)"
+        },
+        "data_description": {
+          "source_entity": "Select a numeric sensor (e.g., battery, temperature, CO2, humidity, power) or input_number helper.",
+          "preset": "Select a standard configuration preset or choose 'Custom' to define your own thresholds and labels.",
+          "thresholds": "Ascending comma-separated numeric limits (e.g. '20, 40, 70').",
+          "labels": "Names for each zone separated by comma (e.g. 'critical, low, medium, good'). Must have one more label than thresholds.",
+          "hysteresis": "Buffer added to thresholds to prevent bouncing between zones when values fluctuate."
+        }
+      }
+    },
+    "error": {
+      "empty_name": "Please provide a name.",
+      "empty_source": "Please select a numeric target entity.",
+      "empty_thresholds": "Please specify at least one threshold value.",
+      "invalid_thresholds": "Thresholds must be comma-separated numbers (e.g. 20, 40, 70).",
+      "empty_labels": "Please specify zone labels."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Configure Limit Helper",
+        "description": "Adjust target entity, preset, thresholds, labels, hysteresis, or icon.",
+        "data": {
+          "source_entity": "Numeric Target Entity",
+          "preset": "Preset Configuration",
+          "thresholds": "Threshold Values (comma-separated)",
+          "labels": "Zone Labels (comma-separated)",
+          "hysteresis": "Hysteresis / Noise Buffer",
+          "icon": "Icon (optional)"
+        },
+        "data_description": {
+          "thresholds": "Ascending comma-separated numeric limits (e.g. '20, 40, 70').",
+          "labels": "Names for each zone separated by comma (e.g. 'critical, low, medium, good')."
+        }
+      }
+    },
+    "error": {
+      "empty_source": "Please select a numeric target entity.",
+      "empty_thresholds": "Please specify at least one threshold value.",
+      "invalid_thresholds": "Thresholds must be comma-separated numbers.",
+      "empty_labels": "Please specify zone labels."
+    }
+  },
+  "selector": {
+    "preset": {
+      "options": {
+        "custom": "Custom (define thresholds & labels below)",
+        "battery": "Battery Status (Critical <20, Low <40, Medium <70, Good >=70)",
+        "comfort_temp": "Comfort Temperature (Cold <18, Comfortable <24, Hot >=24)",
+        "humidity": "Humidity (Dry <30, Optimal <60, Humid >=60)",
+        "air_quality": "Air Quality CO2 (Good <800, Moderate <1200, Poor <1800, Critical >=1800)",
+        "power_standby": "Power Consumption (Standby <5, Idle <200, Active >=200)"
+      }
+    }
+  }
+}

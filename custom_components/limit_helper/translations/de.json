@@ -1,0 +1,71 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Grenzwert-Helfer (Limit Helper) erstellen",
+        "description": "Kategorisiert einen numerischen Sensor in mehrstufige Grenzwertzonen (z. B. low, normal, high, critical) mit optionaler Hysterese, ohne Jinja2-Template-Sensoren.",
+        "data": {
+          "name": "Name",
+          "source_entity": "Numerische Ziel-Entität",
+          "preset": "Konfigurations-Vorlage (Preset)",
+          "thresholds": "Grenzwerte (Kommagetrennt)",
+          "labels": "Zonen-Bezeichnungen (Kommagetrennt)",
+          "hysteresis": "Hysterese / Pufferzone",
+          "icon": "Icon (optional)"
+        },
+        "data_description": {
+          "source_entity": "Wähle einen numerischen Sensor (z. B. Batterie, Temperatur, CO2, Feuchte, Leistung) oder input_number-Helfer.",
+          "preset": "Wähle eine Standard-Vorlage oder 'Benutzerdefiniert' für eigene Schwellen und Bezeichnungen.",
+          "thresholds": "Aufsteigende, kommagetrennte Zahlenwerte (z. B. '20, 40, 70').",
+          "labels": "Namen der Zonen kommagetrennt (z. B. 'critical, low, medium, good'). Genau eine Bezeichnung mehr als Grenzwerte.",
+          "hysteresis": "Pufferbereich an Schwellenwerten, um Flattern bei schwankenden Messwerten zu verhindern."
+        }
+      }
+    },
+    "error": {
+      "empty_name": "Bitte gib einen Namen an.",
+      "empty_source": "Bitte wähle eine numerische Ziel-Entität aus.",
+      "empty_thresholds": "Bitte gib mindestens einen Grenzwert an.",
+      "invalid_thresholds": "Grenzwerte müssen kommagetrennte Zahlen sein (z. B. 20, 40, 70).",
+      "empty_labels": "Bitte gib Bezeichnungen für die Zonen an."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Grenzwert-Helfer bearbeiten",
+        "description": "Passe Ziel-Entität, Vorlage, Schwellenwerte, Zonen-Namen, Hysterese oder Icon an.",
+        "data": {
+          "source_entity": "Numerische Ziel-Entität",
+          "preset": "Konfigurations-Vorlage (Preset)",
+          "thresholds": "Grenzwerte (Kommagetrennt)",
+          "labels": "Zonen-Bezeichnungen (Kommagetrennt)",
+          "hysteresis": "Hysterese / Pufferzone",
+          "icon": "Icon (optional)"
+        },
+        "data_description": {
+          "thresholds": "Aufsteigende, kommagetrennte Zahlenwerte (z. B. '20, 40, 70').",
+          "labels": "Namen der Zonen kommagetrennt (z. B. 'critical, low, medium, good')."
+        }
+      }
+    },
+    "error": {
+      "empty_source": "Bitte wähle eine numerische Ziel-Entität aus.",
+      "empty_thresholds": "Bitte gib mindestens einen Grenzwert an.",
+      "invalid_thresholds": "Grenzwerte müssen kommagetrennte Zahlen sein.",
+      "empty_labels": "Bitte gib Bezeichnungen für die Zonen an."
+    }
+  },
+  "selector": {
+    "preset": {
+      "options": {
+        "custom": "Benutzerdefiniert (Schwellen & Namen unten festlegen)",
+        "battery": "Batteriestatus (Kritisch <20, Niedrig <40, Mittel <70, Gut >=70)",
+        "comfort_temp": "Wohlfühltemperatur (Kalt <18, Angenehm <24, Heiß >=24)",
+        "humidity": "Luftfeuchtigkeit (Trocken <30, Optimal <60, Feucht >=60)",
+        "air_quality": "Luftqualität CO2 (Gut <800, Mäßig <1200, Schlecht <1800, Kritisch >=1800)",
+        "power_standby": "Stromverbrauch (Standby <5, Leerlauf <200, Aktiv >=200)"
+      }
+    }
+  }
+}
