@@ -1,0 +1,78 @@
+{
+  "entity": {
+    "sensor": {
+      "limit_helper": {
+        "name": "Pembantu Batas"
+      }
+    }
+  },
+  "config": {
+    "step": {
+      "user": {
+        "title": "Buat Pembantu Batas",
+        "description": "Kategorikan sensor numerik ke dalam zona batas bertingkat (mis. rendah, normal, tinggi, kritis) dengan histeresis opsional tanpa menulis sensor templat Jinja2.",
+        "data": {
+          "name": "Nama",
+          "source_entity": "Entitas Target Numerik",
+          "preset": "Konfigurasi Preset",
+          "thresholds": "Nilai Ambang Batas (dipisahkan koma)",
+          "labels": "Label Zona (dipisahkan koma)",
+          "hysteresis": "Histeresis / Buffer Derau",
+          "icon": "Ikon (opsional)"
+        },
+        "data_description": {
+          "source_entity": "Pilih sensor numerik (mis. baterai, suhu, CO2, kelembapan, daya) atau pembantu input_number.",
+          "preset": "Pilih preset konfigurasi standar atau pilih 'Kustom' untuk menentukan ambang batas dan label Anda sendiri.",
+          "thresholds": "Batas numerik naik yang dipisahkan koma (mis. '20, 40, 70').",
+          "labels": "Nama untuk setiap zona dipisahkan koma (mis. 'kritis, rendah, sedang, baik'). Harus memiliki satu label lebih banyak daripada ambang batas.",
+          "hysteresis": "Buffer yang ditambahkan ke ambang batas untuk mencegah loncatan antar zona saat nilai berfluktuasi."
+        }
+      }
+    },
+    "error": {
+      "empty_name": "Silakan masukkan nama.",
+      "empty_source": "Silakan pilih entitas target numerik.",
+      "empty_thresholds": "Silakan tentukan setidaknya satu nilai ambang batas.",
+      "invalid_thresholds": "Ambang batas harus berupa angka yang dipisahkan koma (mis. 20, 40, 70).",
+      "empty_labels": "Silakan tentukan label zona."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Konfigurasi Pembantu Batas",
+        "description": "Sesuaikan entitas target, preset, ambang batas, label, histeresis, atau ikon.",
+        "data": {
+          "source_entity": "Entitas Target Numerik",
+          "preset": "Konfigurasi Preset",
+          "thresholds": "Nilai Ambang Batas (dipisahkan koma)",
+          "labels": "Label Zona (dipisahkan koma)",
+          "hysteresis": "Histeresis / Buffer Derau",
+          "icon": "Ikon (opsional)"
+        },
+        "data_description": {
+          "thresholds": "Batas numerik naik yang dipisahkan koma (mis. '20, 40, 70').",
+          "labels": "Nama untuk setiap zona dipisahkan koma (mis. 'kritis, rendah, sedang, baik')."
+        }
+      }
+    },
+    "error": {
+      "empty_source": "Silakan pilih entitas target numerik.",
+      "empty_thresholds": "Silakan tentukan setidaknya satu nilai ambang batas.",
+      "invalid_thresholds": "Ambang batas harus berupa angka yang dipisahkan koma.",
+      "empty_labels": "Silakan tentukan label zona."
+    }
+  },
+  "selector": {
+    "preset": {
+      "options": {
+        "custom": "Kustom (tentukan ambang batas & label di bawah)",
+        "battery": "Status Baterai (Kritis <20, Rendah <40, Sedang <70, Baik >=70)",
+        "comfort_temp": "Suhu Nyaman (Dingin <18, Nyaman <24, Panas >=24)",
+        "humidity": "Kelembapan (Kering <30, Optimal <60, Lembap >=60)",
+        "air_quality": "Kualitas Udara CO2 (Baik <800, Sedang <1200, Buruk <1800, Kritis >=1800)",
+        "power_standby": "Konsumsi Daya (Siaga <5, Diam <200, Aktif >=200)"
+      }
+    }
+  }
+}

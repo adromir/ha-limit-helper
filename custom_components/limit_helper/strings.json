@@ -1,4 +1,11 @@
 {
+  "entity": {
+    "sensor": {
+      "limit_helper": {
+        "name": "Limit Helper"
+      }
+    }
+  },
   "config": {
     "step": {
       "user": {
