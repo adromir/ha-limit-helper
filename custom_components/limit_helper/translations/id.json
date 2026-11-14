@@ -9,69 +9,97 @@
   "config": {
     "step": {
       "user": {
-        "title": "Buat Pembantu Batas",
-        "description": "Kategorikan sensor numerik ke dalam zona batas bertingkat (mis. rendah, normal, tinggi, kritis) dengan histeresis opsional tanpa menulis sensor templat Jinja2.",
+        "title": "Buat Pembantu Batas (Limit Helper)",
+        "description": "Kategorikan sensor numerik ke dalam zona batas bertingkat, evaluasi batas tunggal atau ganda (dalam/di luar rentang), dengan ambang batas dinamis entitas, waktu tahan debounce, dan histeresis untuk menghilangkan fluktuasi cepat.",
         "data": {
           "name": "Nama",
           "source_entity": "Entitas Target Numerik",
           "preset": "Konfigurasi Preset",
-          "thresholds": "Nilai Ambang Batas (dipisahkan koma)",
-          "labels": "Label Zona (dipisahkan koma)",
-          "hysteresis": "Histeresis / Buffer Derau",
+          "mode": "Mode Operasi / Perilaku",
+          "thresholds": "Nilai Ambang Batas (angka atau ID entitas dipisahkan koma)",
+          "labels": "Label Status / Zona (dipisahkan koma)",
+          "hysteresis": "Histeresis / Penyangga Kebisingan",
+          "hold_time": "Waktu Tahan / Debounce (detik)",
+          "gradient_threshold": "Ambang Peringatan Gradien (opsional)",
           "icon": "Ikon (opsional)"
         },
         "data_description": {
-          "source_entity": "Pilih sensor numerik (mis. baterai, suhu, CO2, kelembapan, daya) atau pembantu input_number.",
-          "preset": "Pilih preset konfigurasi standar atau pilih 'Kustom' untuk menentukan ambang batas dan label Anda sendiri.",
-          "thresholds": "Batas numerik naik yang dipisahkan koma (mis. '20, 40, 70').",
-          "labels": "Nama untuk setiap zona dipisahkan koma (mis. 'kritis, rendah, sedang, baik'). Harus memiliki satu label lebih banyak daripada ambang batas.",
-          "hysteresis": "Buffer yang ditambahkan ke ambang batas untuk mencegah loncatan antar zona saat nilai berfluktuasi."
+          "source_entity": "Pilih sensor numerik (misalnya suhu, baterai, daya, kelembaban, CO2) atau pembantu input_number.",
+          "preset": "Pilih preset cepat (misalnya Baterai, Suhu Nyaman, Rentang Dalam/Luar) atau pilih 'Kustom'.",
+          "mode": "Perilaku operasi: 'Zona Bertingkat', 'Dalam Rentang', 'Di Luar Rentang' (perilaku terbalik: peringatan di luar batas), 'Di Atas Batas', atau 'Di Bawah Batas'.",
+          "thresholds": "Angka atau ID entitas yang dipisahkan koma (misalnya '18, 24' atau 'input_number.min_temp, 22.0, sensor.max_temp') untuk batas dinamis.",
+          "labels": "Nama untuk status atau zona aktif yang dipisahkan dengan koma (misalnya 'inside, outside' atau 'low, normal, high, critical').",
+          "hysteresis": "APA ITU HISTERESIS? Histeresis mencegah peralihan hidup/mati yang terlalu cepat ketika suatu nilai melayang tepat di perbatasan ambang. Contoh: Batas 20°C dengan histeresis 0,5°C menyala pada 20,5°C dan hanya mati setelah turun di bawah 19,5°C.",
+          "hold_time": "Detik minimum nilai harus stabil di zona baru sebelum beralih status (0 = instan). Menyaring lonjakan singkat.",
+          "gradient_threshold": "Memicu peringatan gradien jika pengukuran naik atau turun lebih cepat dari X unit per menit."
         }
       }
     },
     "error": {
       "empty_name": "Silakan masukkan nama.",
       "empty_source": "Silakan pilih entitas target numerik.",
-      "empty_thresholds": "Silakan tentukan setidaknya satu nilai ambang batas.",
-      "invalid_thresholds": "Ambang batas harus berupa angka yang dipisahkan koma (mis. 20, 40, 70).",
-      "empty_labels": "Silakan tentukan label zona."
+      "empty_thresholds": "Harap tentukan setidaknya satu nilai ambang batas.",
+      "requires_two_thresholds": "Mode Dalam dan Luar Rentang memerlukan setidaknya dua nilai ambang batas (batas bawah dan batas atas).",
+      "invalid_thresholds": "Ambang batas harus berupa angka yang dipisahkan koma atau ID entitas yang valid.",
+      "empty_labels": "Silakan tentukan label status atau zona."
     }
   },
   "options": {
     "step": {
       "init": {
-        "title": "Konfigurasi Pembantu Batas",
-        "description": "Sesuaikan entitas target, preset, ambang batas, label, histeresis, atau ikon.",
+        "title": "Konfigurasikan Pembantu Batas",
+        "description": "Sesuaikan entitas target, preset, mode, ambang batas, label, histeresis, waktu tahan, atau ikon.",
         "data": {
           "source_entity": "Entitas Target Numerik",
           "preset": "Konfigurasi Preset",
-          "thresholds": "Nilai Ambang Batas (dipisahkan koma)",
-          "labels": "Label Zona (dipisahkan koma)",
-          "hysteresis": "Histeresis / Buffer Derau",
+          "mode": "Mode Operasi / Perilaku",
+          "thresholds": "Nilai Ambang Batas (angka atau ID entitas dipisahkan koma)",
+          "labels": "Label Status / Zona (dipisahkan koma)",
+          "hysteresis": "Histeresis / Penyangga Kebisingan",
+          "hold_time": "Waktu Tahan / Debounce (detik)",
+          "gradient_threshold": "Ambang Peringatan Gradien (opsional)",
           "icon": "Ikon (opsional)"
         },
         "data_description": {
-          "thresholds": "Batas numerik naik yang dipisahkan koma (mis. '20, 40, 70').",
-          "labels": "Nama untuk setiap zona dipisahkan koma (mis. 'kritis, rendah, sedang, baik')."
+          "mode": "Perilaku operasi: 'Zona Bertingkat', 'Dalam Rentang', 'Di Luar Rentang' (terbalik), 'Di Atas Batas', atau 'Di Bawah Batas'.",
+          "thresholds": "Angka atau ID entitas yang dipisahkan koma.",
+          "labels": "Nama untuk setiap zona atau status dipisahkan koma.",
+          "hysteresis": "APA ITU HISTERESIS? Histeresis mencegah peralihan cepat saat nilai berada di dekat perbatasan. Contoh batas 20°C dengan histeresis 0,5°C baru beralih di 20,5°C dan kembali di bawah 19,5°C.",
+          "hold_time": "Detik suatu nilai harus stabil sebelum beralih (0 = instan).",
+          "gradient_threshold": "Ambang batas dalam satuan/menit untuk mendeteksi lonjakan cepat."
         }
       }
     },
     "error": {
       "empty_source": "Silakan pilih entitas target numerik.",
-      "empty_thresholds": "Silakan tentukan setidaknya satu nilai ambang batas.",
-      "invalid_thresholds": "Ambang batas harus berupa angka yang dipisahkan koma.",
-      "empty_labels": "Silakan tentukan label zona."
+      "empty_thresholds": "Harap tentukan setidaknya satu nilai ambang batas.",
+      "requires_two_thresholds": "Mode rentang memerlukan setidaknya dua nilai ambang batas.",
+      "invalid_thresholds": "Ambang batas harus berupa angka yang dipisahkan koma atau ID entitas yang valid.",
+      "empty_labels": "Silakan tentukan label status atau zona."
     }
   },
   "selector": {
     "preset": {
       "options": {
         "custom": "Kustom (tentukan ambang batas & label di bawah)",
+        "inside_range": "Dalam Rentang (Normal antara 18 dan 24)",
+        "outside_range": "Di Luar Rentang (Peringatan di luar 18 dan 24 - Terbalik)",
+        "above_limit": "Di Atas Batas (Aktif jika >= 25)",
+        "below_limit": "Di Bawah Batas (Aktif jika < 15)",
         "battery": "Status Baterai (Kritis <20, Rendah <40, Sedang <70, Baik >=70)",
         "comfort_temp": "Suhu Nyaman (Dingin <18, Nyaman <24, Panas >=24)",
-        "humidity": "Kelembapan (Kering <30, Optimal <60, Lembap >=60)",
+        "humidity": "Kelembaban (Kering <30, Optimal <60, Lembab >=60)",
         "air_quality": "Kualitas Udara CO2 (Baik <800, Sedang <1200, Buruk <1800, Kritis >=1800)",
-        "power_standby": "Konsumsi Daya (Siaga <5, Diam <200, Aktif >=200)"
+        "power_standby": "Konsumsi Daya (Standby <5, Idle <200, Aktif >=200)"
+      }
+    },
+    "mode": {
+      "options": {
+        "multi_zone": "Zona Bertingkat (N ambang batas ➔ N+1 zona)",
+        "inside_range": "Dalam Rentang (Aktif antara batas bawah & atas)",
+        "outside_range": "Di Luar Rentang (Aktif di luar batas bawah & atas - Terbalik)",
+        "above_limit": "Di Atas Batas (Aktif jika >= batas)",
+        "below_limit": "Di Bawah Batas (Aktif jika < batas)"
       }
     }
   }

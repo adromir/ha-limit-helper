@@ -14,15 +14,27 @@ from homeassistant.helpers import selector
 from .const import (
     DOMAIN,
     CONF_SOURCE_ENTITY,
+    CONF_MODE,
     CONF_PRESET,
     CONF_THRESHOLDS,
     CONF_LABELS,
     CONF_HYSTERESIS,
+    CONF_HOLD_TIME,
+    CONF_GRADIENT_THRESHOLD,
     CONF_ICON,
     DEFAULT_NAME,
+    DEFAULT_MODE,
     DEFAULT_PRESET,
     DEFAULT_HYSTERESIS,
+    DEFAULT_HOLD_TIME,
+    DEFAULT_GRADIENT_THRESHOLD,
     DEFAULT_ICON,
+    MODE_OPTIONS,
+    MODE_MULTI_ZONE,
+    MODE_INSIDE_RANGE,
+    MODE_OUTSIDE_RANGE,
+    MODE_ABOVE_LIMIT,
+    MODE_BELOW_LIMIT,
     PRESET_CUSTOM,
     PRESET_DEFAULTS,
     PRESET_OPTIONS,
@@ -31,15 +43,28 @@ from .const import (
 _LOGGER = logging.getLogger(__name__)
 
 
-def parse_thresholds(thresh_str: str) -> list[float]:
-    """Parse comma-separated thresholds string into sorted list of floats."""
-    parts = [p.strip() for p in thresh_str.split(",") if p.strip()]
-    return sorted([float(p) for p in parts])
+def parse_threshold_items(thresh_str: str) -> list[str]:
+    """Parse comma-separated threshold items (can be numbers or entity IDs)."""
+    return [p.strip() for p in thresh_str.split(",") if p.strip()]
 
 
 def parse_labels(labels_str: str) -> list[str]:
     """Parse comma-separated labels string."""
     return [l.strip() for l in labels_str.split(",") if l.strip()]
+
+
+def is_valid_threshold_item(item: str) -> bool:
+    """Check if item is a float or a valid entity ID."""
+    try:
+        float(item)
+        return True
+    except ValueError:
+        pass
+    if "." in item and len(item.split(".")) == 2:
+        domain, obj = item.split(".")
+        if domain and obj:
+            return True
+    return False
 
 
 def _validate_input(user_input: dict[str, Any]) -> dict[str, str]:
@@ -54,29 +79,42 @@ def _validate_input(user_input: dict[str, Any]) -> dict[str, str]:
     if not source_entity:
         errors[CONF_SOURCE_ENTITY] = "empty_source"
 
+    # Apply preset defaults if custom values are blank
+    if preset != PRESET_CUSTOM and preset in PRESET_DEFAULTS:
+        p_def = PRESET_DEFAULTS[preset]
+        if not user_input.get(CONF_MODE):
+            user_input[CONF_MODE] = p_def.get("mode", DEFAULT_MODE)
+        if not user_input.get(CONF_THRESHOLDS):
+            user_input[CONF_THRESHOLDS] = p_def.get("thresholds", "")
+        if not user_input.get(CONF_LABELS):
+            user_input[CONF_LABELS] = p_def.get("labels", "")
+
+    mode = user_input.get(CONF_MODE, DEFAULT_MODE)
     thresh_str = user_input.get(CONF_THRESHOLDS, "").strip()
     labels_str = user_input.get(CONF_LABELS, "").strip()
-
-    if preset != PRESET_CUSTOM and preset in PRESET_DEFAULTS:
-        if not thresh_str:
-            thresh_str = PRESET_DEFAULTS[preset]["thresholds"]
-            user_input[CONF_THRESHOLDS] = thresh_str
-        if not labels_str:
-            labels_str = PRESET_DEFAULTS[preset]["labels"]
-            user_input[CONF_LABELS] = labels_str
 
     if not thresh_str:
         errors[CONF_THRESHOLDS] = "empty_thresholds"
     else:
-        try:
-            thresh_list = parse_thresholds(thresh_str)
-            if not thresh_list:
-                errors[CONF_THRESHOLDS] = "empty_thresholds"
-        except ValueError:
+        items = parse_threshold_items(thresh_str)
+        if not items:
+            errors[CONF_THRESHOLDS] = "empty_thresholds"
+        elif not all(is_valid_threshold_item(item) for item in items):
             errors[CONF_THRESHOLDS] = "invalid_thresholds"
+        elif mode in (MODE_INSIDE_RANGE, MODE_OUTSIDE_RANGE) and len(items) < 2:
+            errors[CONF_THRESHOLDS] = "requires_two_thresholds"
 
     if not labels_str:
-        errors[CONF_LABELS] = "empty_labels"
+        if mode == MODE_INSIDE_RANGE:
+            user_input[CONF_LABELS] = "inside, outside"
+        elif mode == MODE_OUTSIDE_RANGE:
+            user_input[CONF_LABELS] = "outside, inside"
+        elif mode == MODE_ABOVE_LIMIT:
+            user_input[CONF_LABELS] = "above, below"
+        elif mode == MODE_BELOW_LIMIT:
+            user_input[CONF_LABELS] = "below, above"
+        else:
+            errors[CONF_LABELS] = "empty_labels"
 
     return errors
 
@@ -106,7 +144,7 @@ class LimitHelperConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     selector.TextSelectorConfig(type=selector.TextSelectorType.TEXT)
                 ),
                 vol.Required(CONF_SOURCE_ENTITY): selector.EntitySelector(
-                    selector.EntitySelectorConfig(domain=["sensor", "input_number"])
+                    selector.EntitySelectorConfig(domain=["sensor", "input_number", "number"])
                 ),
                 vol.Required(
                     CONF_PRESET, default=DEFAULT_PRESET
@@ -115,6 +153,15 @@ class LimitHelperConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                         options=[{"value": p, "label": p} for p in PRESET_OPTIONS],
                         mode=selector.SelectSelectorMode.DROPDOWN,
                         translation_key="preset",
+                    )
+                ),
+                vol.Required(
+                    CONF_MODE, default=DEFAULT_MODE
+                ): selector.SelectSelector(
+                    selector.SelectSelectorConfig(
+                        options=[{"value": m, "label": m} for m in MODE_OPTIONS],
+                        mode=selector.SelectSelectorMode.DROPDOWN,
+                        translation_key="mode",
                     )
                 ),
                 vol.Optional(
@@ -129,6 +176,25 @@ class LimitHelperConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 ),
                 vol.Optional(
                     CONF_HYSTERESIS, default=DEFAULT_HYSTERESIS
+                ): selector.NumberSelector(
+                    selector.NumberSelectorConfig(
+                        min=0.0,
+                        mode=selector.NumberSelectorMode.BOX,
+                        step="any",
+                    )
+                ),
+                vol.Optional(
+                    CONF_HOLD_TIME, default=DEFAULT_HOLD_TIME
+                ): selector.NumberSelector(
+                    selector.NumberSelectorConfig(
+                        min=0.0,
+                        mode=selector.NumberSelectorMode.BOX,
+                        step=1.0,
+                        unit_of_measurement="s",
+                    )
+                ),
+                vol.Optional(
+                    CONF_GRADIENT_THRESHOLD, default=DEFAULT_GRADIENT_THRESHOLD
                 ): selector.NumberSelector(
                     selector.NumberSelectorConfig(
                         min=0.0,
@@ -183,7 +249,7 @@ class LimitHelperOptionsFlow(config_entries.OptionsFlow):
                     CONF_SOURCE_ENTITY,
                     default=current_data.get(CONF_SOURCE_ENTITY, ""),
                 ): selector.EntitySelector(
-                    selector.EntitySelectorConfig(domain=["sensor", "input_number"])
+                    selector.EntitySelectorConfig(domain=["sensor", "input_number", "number"])
                 ),
                 vol.Required(
                     CONF_PRESET,
@@ -193,6 +259,16 @@ class LimitHelperOptionsFlow(config_entries.OptionsFlow):
                         options=[{"value": p, "label": p} for p in PRESET_OPTIONS],
                         mode=selector.SelectSelectorMode.DROPDOWN,
                         translation_key="preset",
+                    )
+                ),
+                vol.Required(
+                    CONF_MODE,
+                    default=current_data.get(CONF_MODE, DEFAULT_MODE),
+                ): selector.SelectSelector(
+                    selector.SelectSelectorConfig(
+                        options=[{"value": m, "label": m} for m in MODE_OPTIONS],
+                        mode=selector.SelectSelectorMode.DROPDOWN,
+                        translation_key="mode",
                     )
                 ),
                 vol.Required(
@@ -209,7 +285,28 @@ class LimitHelperOptionsFlow(config_entries.OptionsFlow):
                 ),
                 vol.Optional(
                     CONF_HYSTERESIS,
-                    default=current_data.get(CONF_HYSTERESIS, DEFAULT_HYSTERESIS),
+                    default=float(current_data.get(CONF_HYSTERESIS, DEFAULT_HYSTERESIS)),
+                ): selector.NumberSelector(
+                    selector.NumberSelectorConfig(
+                        min=0.0,
+                        mode=selector.NumberSelectorMode.BOX,
+                        step="any",
+                    )
+                ),
+                vol.Optional(
+                    CONF_HOLD_TIME,
+                    default=float(current_data.get(CONF_HOLD_TIME, DEFAULT_HOLD_TIME)),
+                ): selector.NumberSelector(
+                    selector.NumberSelectorConfig(
+                        min=0.0,
+                        mode=selector.NumberSelectorMode.BOX,
+                        step=1.0,
+                        unit_of_measurement="s",
+                    )
+                ),
+                vol.Optional(
+                    CONF_GRADIENT_THRESHOLD,
+                    default=float(current_data.get(CONF_GRADIENT_THRESHOLD, DEFAULT_GRADIENT_THRESHOLD)),
                 ): selector.NumberSelector(
                     selector.NumberSelectorConfig(
                         min=0.0,
@@ -229,4 +326,3 @@ class LimitHelperOptionsFlow(config_entries.OptionsFlow):
             data_schema=schema,
             errors=errors,
         )
-

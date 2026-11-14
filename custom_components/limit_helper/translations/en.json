@@ -10,22 +10,28 @@
     "step": {
       "user": {
         "title": "Create Limit Helper",
-        "description": "Categorize a numeric sensor into multi-tier limit zones (e.g. low, normal, high, critical) with optional hysteresis, without writing Jinja2 template sensors.",
+        "description": "Categorize any numeric sensor into qualitative limit zones, evaluate single or double bounds (inside/outside range), with dynamic entity thresholds, hold time debouncing, and hysteresis to eliminate jitter.",
         "data": {
           "name": "Name",
           "source_entity": "Numeric Target Entity",
           "preset": "Preset Configuration",
-          "thresholds": "Threshold Values (comma-separated)",
-          "labels": "Zone Labels (comma-separated)",
+          "mode": "Operating Mode / Behavior",
+          "thresholds": "Threshold Values (comma-separated numbers or entity IDs)",
+          "labels": "State / Zone Labels (comma-separated)",
           "hysteresis": "Hysteresis / Noise Buffer",
+          "hold_time": "Hold Time / Debounce (seconds)",
+          "gradient_threshold": "Gradient Alert Threshold (optional)",
           "icon": "Icon (optional)"
         },
         "data_description": {
-          "source_entity": "Select a numeric sensor (e.g., battery, temperature, CO2, humidity, power) or input_number helper.",
-          "preset": "Select a standard configuration preset or choose 'Custom' to define your own thresholds and labels.",
-          "thresholds": "Ascending comma-separated numeric limits (e.g. '20, 40, 70').",
-          "labels": "Names for each zone separated by comma (e.g. 'critical, low, medium, good'). Must have one more label than thresholds.",
-          "hysteresis": "Buffer added to thresholds to prevent bouncing between zones when values fluctuate."
+          "source_entity": "Select a numeric sensor (e.g. temperature, battery, power, humidity, CO2) or input_number helper.",
+          "preset": "Select a quick preset (e.g. Battery, Comfort Temp, Inside/Outside Range) or choose 'Custom'.",
+          "mode": "Operating behavior: 'Multi-Tier Zones', 'Inside Range' (in bounds), 'Outside Range' (the inverted behavior: alerts outside bounds), 'Above Limit', or 'Below Limit'.",
+          "thresholds": "Comma-separated numbers or entity IDs (e.g. '18, 24' or 'input_number.min_temp, 22.0, sensor.max_temp') for dynamic limits.",
+          "labels": "Names for active states or zones separated by commas (e.g. 'inside, outside' or 'low, normal, high, critical').",
+          "hysteresis": "WHAT IS HYSTERESIS? Hysteresis prevents rapid on/off flapping when a value hovers right on a boundary. Example: A limit of 20°C with 0.5°C hysteresis turns ON at 20.5°C and only turns OFF once falling below 19.5°C, ensuring clean switching without fluttering.",
+          "hold_time": "Minimum seconds the value must continuously stay in the new state before switching (0 = instant). Filters out short measurement spikes.",
+          "gradient_threshold": "Triggers a gradient alert when the measurement rises or falls faster than X units per minute (e.g. sudden temperature or power surge)."
         }
       }
     },
@@ -33,47 +39,68 @@
       "empty_name": "Please provide a name.",
       "empty_source": "Please select a numeric target entity.",
       "empty_thresholds": "Please specify at least one threshold value.",
-      "invalid_thresholds": "Thresholds must be comma-separated numbers (e.g. 20, 40, 70).",
-      "empty_labels": "Please specify zone labels."
+      "requires_two_thresholds": "Inside and Outside Range modes require at least two thresholds (lower and upper bound).",
+      "invalid_thresholds": "Thresholds must be comma-separated numbers or valid entity IDs (e.g. 18, 24 or input_number.limit).",
+      "empty_labels": "Please specify state/zone labels."
     }
   },
   "options": {
     "step": {
       "init": {
         "title": "Configure Limit Helper",
-        "description": "Adjust target entity, preset, thresholds, labels, hysteresis, or icon.",
+        "description": "Adjust target entity, preset, mode, thresholds, labels, hysteresis, debounce hold time, or icon.",
         "data": {
           "source_entity": "Numeric Target Entity",
           "preset": "Preset Configuration",
-          "thresholds": "Threshold Values (comma-separated)",
-          "labels": "Zone Labels (comma-separated)",
+          "mode": "Operating Mode / Behavior",
+          "thresholds": "Threshold Values (comma-separated numbers or entity IDs)",
+          "labels": "State / Zone Labels (comma-separated)",
           "hysteresis": "Hysteresis / Noise Buffer",
+          "hold_time": "Hold Time / Debounce (seconds)",
+          "gradient_threshold": "Gradient Alert Threshold (optional)",
           "icon": "Icon (optional)"
         },
         "data_description": {
-          "thresholds": "Ascending comma-separated numeric limits (e.g. '20, 40, 70').",
-          "labels": "Names for each zone separated by comma (e.g. 'critical, low, medium, good')."
+          "mode": "Operating behavior: 'Multi-Tier Zones', 'Inside Range', 'Outside Range' (inverted), 'Above Limit', or 'Below Limit'.",
+          "thresholds": "Comma-separated numbers or entity IDs (e.g. '18, 24' or 'input_number.min_temp, 25.0').",
+          "labels": "Names for each zone or state separated by comma.",
+          "hysteresis": "WHAT IS HYSTERESIS? Hysteresis prevents rapid on/off flapping when a value hovers right on a boundary. Example: A limit of 20°C with 0.5°C hysteresis turns ON at 20.5°C and only turns OFF once falling below 19.5°C.",
+          "hold_time": "Seconds a new value must remain stable before switching (0 = instant).",
+          "gradient_threshold": "Threshold in units per minute to detect rapid spikes or drops."
         }
       }
     },
     "error": {
       "empty_source": "Please select a numeric target entity.",
       "empty_thresholds": "Please specify at least one threshold value.",
-      "invalid_thresholds": "Thresholds must be comma-separated numbers.",
-      "empty_labels": "Please specify zone labels."
+      "requires_two_thresholds": "Inside and Outside Range modes require at least two thresholds.",
+      "invalid_thresholds": "Thresholds must be comma-separated numbers or valid entity IDs.",
+      "empty_labels": "Please specify state/zone labels."
     }
   },
   "selector": {
     "preset": {
       "options": {
         "custom": "Custom (define thresholds & labels below)",
+        "inside_range": "Inside Range (Normal between 18 and 24)",
+        "outside_range": "Outside Range (Alert outside 18 and 24 - Inverted)",
+        "above_limit": "Above Limit (Active when >= 25)",
+        "below_limit": "Below Limit (Active when < 15)",
         "battery": "Battery Status (Critical <20, Low <40, Medium <70, Good >=70)",
         "comfort_temp": "Comfort Temperature (Cold <18, Comfortable <24, Hot >=24)",
         "humidity": "Humidity (Dry <30, Optimal <60, Humid >=60)",
         "air_quality": "Air Quality CO2 (Good <800, Moderate <1200, Poor <1800, Critical >=1800)",
         "power_standby": "Power Consumption (Standby <5, Idle <200, Active >=200)"
       }
+    },
+    "mode": {
+      "options": {
+        "multi_zone": "Multi-Tier Zones (N thresholds ➔ N+1 zones)",
+        "inside_range": "Inside Range (Active between lower & upper bound)",
+        "outside_range": "Outside Range (Active outside lower & upper bound - Inverted)",
+        "above_limit": "Above Limit (Active when >= threshold)",
+        "below_limit": "Below Limit (Active when < threshold)"
+      }
     }
   }
 }
-

@@ -10,22 +10,28 @@
     "step": {
       "user": {
         "title": "Grenzwert-Helfer (Limit Helper) erstellen",
-        "description": "Kategorisiert einen numerischen Sensor in mehrstufige Grenzwertzonen (z. B. low, normal, high, critical) mit optionaler Hysterese, ohne Jinja2-Template-Sensoren.",
+        "description": "Kategorisiert einen numerischen Sensor in Grenzwert-Zonen, prüft Einzel- oder Doppelgrenzen (im Bereich / außerhalb des Bereichs), mit dynamischen Entitäts-Schwellenwerten, Verweildauer-Entprellung und Hysterese gegen Prellen.",
         "data": {
           "name": "Name",
           "source_entity": "Numerische Ziel-Entität",
           "preset": "Konfigurations-Vorlage (Preset)",
-          "thresholds": "Grenzwerte (Kommagetrennt)",
-          "labels": "Zonen-Bezeichnungen (Kommagetrennt)",
+          "mode": "Betriebsmodus / Verhalten",
+          "thresholds": "Grenzwerte (Kommagetrennte Zahlen oder Entitäts-IDs)",
+          "labels": "Zustands- / Zonen-Bezeichnungen (Kommagetrennt)",
           "hysteresis": "Hysterese / Pufferzone",
+          "hold_time": "Verweildauer / Entprellung (Sekunden)",
+          "gradient_threshold": "Steigungs-Grenzwert für Alarm (optional)",
           "icon": "Icon (optional)"
         },
         "data_description": {
-          "source_entity": "Wähle einen numerischen Sensor (z. B. Batterie, Temperatur, CO2, Feuchte, Leistung) oder input_number-Helfer.",
-          "preset": "Wähle eine Standard-Vorlage oder 'Benutzerdefiniert' für eigene Schwellen und Bezeichnungen.",
-          "thresholds": "Aufsteigende, kommagetrennte Zahlenwerte (z. B. '20, 40, 70').",
-          "labels": "Namen der Zonen kommagetrennt (z. B. 'critical, low, medium, good'). Genau eine Bezeichnung mehr als Grenzwerte.",
-          "hysteresis": "Pufferbereich an Schwellenwerten, um Flattern bei schwankenden Messwerten zu verhindern."
+          "source_entity": "Wähle einen numerischen Sensor (z. B. Temperatur, Batterie, Feuchte, Leistung, CO2) oder input_number-Helfer.",
+          "preset": "Wähle eine Schnell-Vorlage (z. B. Batterie, Komfort-Temperatur, Bereich Innen/Außen) oder 'Benutzerdefiniert'.",
+          "mode": "Verhalten: 'Mehrstufige Zonen', 'Im Bereich' (zwischen Min und Max), 'Außerhalb des Bereichs' (das umgekehrte Verhalten: Alarm bei Verlassen des Bereichs), 'Über Grenzwert' oder 'Unter Grenzwert'.",
+          "thresholds": "Kommagetrennte Zahlen oder Entitäts-IDs (z. B. '18, 24' oder 'input_number.min_temp, 22.0, sensor.max_temp') für dynamische Grenzen.",
+          "labels": "Namen der aktiven Zustände oder Zonen kommagetrennt (z. B. 'inside, outside' oder 'low, normal, high, critical').",
+          "hysteresis": "WAS BEDEUTET HYSTERESE? Die Hysterese verhindert 'Flattern' (nervöses Hin- und Herschalten), wenn der Messwert direkt an der Grenze schwankt. Beispiel: Grenzwert 20°C mit 0,5°C Hysterese: Der Sensor schaltet beim Steigen erst ab 20,5°C um und springt beim Fallen erst wieder unter 19,5°C zurück. So werden ständige Fehl-Schaltungen bei minimalem Messrauschen verhindert.",
+          "hold_time": "Mindestdauer in Sekunden, die ein neuer Wert stabil in der Zone anliegen muss, bevor der Zustand umschaltet (0 = sofort). Filtert kurze Spitzen aus.",
+          "gradient_threshold": "Löst einen Steigungs-Alarm aus, wenn sich der Wert schneller als X Einheiten pro Minute ändert (z. B. plötzlicher Temperatur- oder Verbrauchssprung)."
         }
       }
     },
@@ -33,47 +39,68 @@
       "empty_name": "Bitte gib einen Namen an.",
       "empty_source": "Bitte wähle eine numerische Ziel-Entität aus.",
       "empty_thresholds": "Bitte gib mindestens einen Grenzwert an.",
-      "invalid_thresholds": "Grenzwerte müssen kommagetrennte Zahlen sein (z. B. 20, 40, 70).",
-      "empty_labels": "Bitte gib Bezeichnungen für die Zonen an."
+      "requires_two_thresholds": "Die Modi 'Im Bereich' und 'Außerhalb des Bereichs' erfordern mindestens zwei Grenzwerte (untere und obere Grenze).",
+      "invalid_thresholds": "Grenzwerte müssen kommagetrennte Zahlen oder gültige Entitäts-IDs sein (z. B. 18, 24 oder input_number.grenze).",
+      "empty_labels": "Bitte gib Bezeichnungen für die Zustände bzw. Zonen an."
     }
   },
   "options": {
     "step": {
       "init": {
         "title": "Grenzwert-Helfer bearbeiten",
-        "description": "Passe Ziel-Entität, Vorlage, Schwellenwerte, Zonen-Namen, Hysterese oder Icon an.",
+        "description": "Passe Ziel-Entität, Vorlage, Modus, Schwellenwerte, Bezeichnungen, Hysterese, Verweildauer oder Icon an.",
         "data": {
           "source_entity": "Numerische Ziel-Entität",
           "preset": "Konfigurations-Vorlage (Preset)",
-          "thresholds": "Grenzwerte (Kommagetrennt)",
-          "labels": "Zonen-Bezeichnungen (Kommagetrennt)",
+          "mode": "Betriebsmodus / Verhalten",
+          "thresholds": "Grenzwerte (Kommagetrennte Zahlen oder Entitäts-IDs)",
+          "labels": "Zustands- / Zonen-Bezeichnungen (Kommagetrennt)",
           "hysteresis": "Hysterese / Pufferzone",
+          "hold_time": "Verweildauer / Entprellung (Sekunden)",
+          "gradient_threshold": "Steigungs-Grenzwert für Alarm (optional)",
           "icon": "Icon (optional)"
         },
         "data_description": {
-          "thresholds": "Aufsteigende, kommagetrennte Zahlenwerte (z. B. '20, 40, 70').",
-          "labels": "Namen der Zonen kommagetrennt (z. B. 'critical, low, medium, good')."
+          "mode": "Verhalten: 'Mehrstufige Zonen', 'Im Bereich', 'Außerhalb des Bereichs' (umgekehrt), 'Über Grenzwert' oder 'Unter Grenzwert'.",
+          "thresholds": "Kommagetrennte Zahlen oder Entitäts-IDs (z. B. '18, 24' oder 'input_number.min_temp, 25.0').",
+          "labels": "Namen der Zustände bzw. Zonen kommagetrennt.",
+          "hysteresis": "WAS BEDEUTET HYSTERESE? Die Hysterese verhindert 'Flattern' bei Werten nahe der Grenze. Beispiel: Grenzwert 20°C mit 0,5°C Hysterese: Schaltet erst ab 20,5°C ein und erst unter 19,5°C wieder zurück.",
+          "hold_time": "Dauer in Sekunden, die ein Wert stabil anliegen muss (0 = sofort).",
+          "gradient_threshold": "Schwellenwert in Einheiten/Minute zur Erkennung schneller Sprünge."
         }
       }
     },
     "error": {
       "empty_source": "Bitte wähle eine numerische Ziel-Entität aus.",
       "empty_thresholds": "Bitte gib mindestens einen Grenzwert an.",
-      "invalid_thresholds": "Grenzwerte müssen kommagetrennte Zahlen sein.",
-      "empty_labels": "Bitte gib Bezeichnungen für die Zonen an."
+      "requires_two_thresholds": "Die Bereichs-Modi erfordern mindestens zwei Grenzwerte.",
+      "invalid_thresholds": "Grenzwerte müssen kommagetrennte Zahlen oder gültige Entitäts-IDs sein.",
+      "empty_labels": "Bitte gib Bezeichnungen für die Zustände bzw. Zonen an."
     }
   },
   "selector": {
     "preset": {
       "options": {
         "custom": "Benutzerdefiniert (Schwellen & Namen unten festlegen)",
+        "inside_range": "Im Bereich (Normalzustand zwischen 18 und 24)",
+        "outside_range": "Außerhalb des Bereichs (Alarm bei Verlassen von 18 bis 24 - Umgekehrt)",
+        "above_limit": "Über Grenzwert (Aktiv wenn >= 25)",
+        "below_limit": "Unter Grenzwert (Aktiv wenn < 15)",
         "battery": "Batteriestatus (Kritisch <20, Niedrig <40, Mittel <70, Gut >=70)",
         "comfort_temp": "Wohlfühltemperatur (Kalt <18, Angenehm <24, Heiß >=24)",
         "humidity": "Luftfeuchtigkeit (Trocken <30, Optimal <60, Feucht >=60)",
         "air_quality": "Luftqualität CO2 (Gut <800, Mäßig <1200, Schlecht <1800, Kritisch >=1800)",
         "power_standby": "Stromverbrauch (Standby <5, Leerlauf <200, Aktiv >=200)"
       }
+    },
+    "mode": {
+      "options": {
+        "multi_zone": "Mehrstufige Zonen (N Schwellen ➔ N+1 Zonen)",
+        "inside_range": "Im Bereich (Aktiv zwischen unterer & oberer Grenze)",
+        "outside_range": "Außerhalb des Bereichs (Aktiv außerhalb unterer & oberer Grenze - Umgekehrt)",
+        "above_limit": "Über Grenzwert (Aktiv wenn >= Schwelle)",
+        "below_limit": "Unter Grenzwert (Aktiv wenn < Schwelle)"
+      }
     }
   }
 }
-
