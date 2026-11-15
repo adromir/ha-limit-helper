@@ -13,6 +13,17 @@ Completely eliminates complex multi-branch Jinja2 YAML template sensors and solv
 
 ---
 
+## 📸 Screenshots
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/adromir/ha-limit-helper/main/Screenshots/limit-helper-config.png" alt="Limit Helper Configuration Dialog" width="800">
+</p>
+<p align="center">
+  <em>Configuration dialog: configure single or dual boundary thresholds, inside/outside range modes, dynamic threshold entities, debounce hold times, and hysteresis buffers directly in the UI.</em>
+</p>
+
+---
+
 ## 🎯 Why Limit Helper is Far Superior to Native Threshold Sensors
 
 | Feature | Home Assistant Native `threshold` Sensor | 🎚️ Limit Helper (`limit_helper`) |
