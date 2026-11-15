@@ -1,4 +1,5 @@
 {
+  "title": "Grenzwert-Helfer",
   "entity": {
     "sensor": {
       "limit_helper": {

@@ -1,4 +1,5 @@
 {
+  "title": "Pembantu Batas",
   "entity": {
     "sensor": {
       "limit_helper": {
